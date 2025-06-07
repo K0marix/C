@@ -1,0 +1,121 @@
+import datetime  # Импортируем модуль для работы с датами
+import random   # Импортируем модуль для генерации случайных чисел
+import time     # Импортируем модуль для замера времени
+
+# ===== Функция для пункта 1: Расчет дней до даты =====
+def calculate_days_to_date():
+    """
+    Читает дату из файла input.txt и вычисляет сколько дней осталось до этой даты
+    """
+    try:
+        # Открываем файл для чтения
+        with open('input.txt', 'r') as file:
+            date_str = file.readline().strip()  # Читаем первую строку с датой
+            
+        # Преобразуем строку в объект datetime
+        target_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+        current_date = datetime.date.today()  # Получаем текущую дату
+        
+        # Вычисляем разницу между датами
+        delta = target_date - current_date
+        print(f"До даты {target_date} осталось {delta.days} дней")
+        
+    except FileNotFoundError:
+        print("Файл input.txt не найден")
+    except ValueError:
+        print("Неверный формат даты в файле. Ожидается формат YYYY-MM-DD")
+
+# ===== Функции для работы с матрицами =====
+def generate_matrix(size):
+    """
+    Генерирует случайную квадратную матрицу заданного размера
+    """
+    return [[random.randint(1, 10) for _ in range(size)] for _ in range(size)]
+
+def write_matrices_to_file(filename, matrix1, matrix2):
+    """
+    Записывает две матрицы в файл
+    """
+    with open(filename, 'w') as file:
+        # Записываем первую матрицу
+        for row in matrix1:
+            file.write(' '.join(map(str, row)) + '\n')
+        file.write('\n')  # Разделитель между матрицами
+        # Записываем вторую матрицу
+        for row in matrix2:
+            file.write(' '.join(map(str, row)) + '\n')
+
+def read_matrices_from_file(filename):
+    """
+    Читает две матрицы из файла
+    """
+    with open(filename, 'r') as file:
+        content = file.read().split('\n\n')  # Разделяем содержимое по пустой строке
+        matrix1 = [[int(num) for num in line.split()] for line in content[0].split('\n') if line]
+        matrix2 = [[int(num) for num in line.split()] for line in content[1].split('\n') if line]
+    return matrix1, matrix2
+
+def matrix_multiply(a, b):
+    """
+    Умножает две квадратные матрицы
+    """
+    size = len(a)
+    return [[sum(a[i][k] * b[k][j] for k in range(size)) for j in range(size)] for i in range(size)]
+
+def matrix_add(a, b):
+    """
+    Складывает две квадратные матрицы
+    """
+    size = len(a)
+    return [[a[i][j] + b[i][j] for j in range(size)] for i in range(size)]
+
+def write_result_to_file(filename, mult_result, add_result):
+    """
+    Записывает результаты операций в файл
+    """
+    with open(filename, 'w') as file:
+        file.write("Результат умножения матриц:\n")
+        for row in mult_result:
+            file.write(' '.join(map(str, row)) + '\n')
+        
+        file.write("\nРезультат сложения матриц:\n")
+        for row in add_result:
+            file.write(' '.join(map(str, row)) + '\n')
+
+# ===== Основная программа =====
+def main():
+    start_time = time.time()  # Засекаем время начала выполнения
+    
+    # Пункт 1: Расчет дней до даты
+    calculate_days_to_date()
+    
+    # Пункт 3: Создание файла с матрицами
+    try:
+        size = int(input("Введите размер квадратных матриц: "))
+        if size <= 0:
+            raise ValueError("Размер должен быть положительным числом")
+            
+        matrix1 = generate_matrix(size)
+        matrix2 = generate_matrix(size)
+        write_matrices_to_file('input.txt', matrix1, matrix2)
+        
+        # Пункт 4: Очистка массивов
+        matrix1 = matrix2 = None
+        
+        # Пункт 5: Чтение матриц и операции с ними
+        matrix1, matrix2 = read_matrices_from_file('input.txt')
+        mult_result = matrix_multiply(matrix1, matrix2)
+        add_result = matrix_add(matrix1, matrix2)
+        
+        # Пункт 6: Вывод результатов
+        write_result_to_file('output.txt', mult_result, add_result)
+        
+    except ValueError as e:
+        print(f"Ошибка: {e}")
+    
+    # Пункт 7: Замер времени работы
+    end_time = time.time()
+    print(f"Программа выполнилась за {end_time - start_time:.4f} секунд")
+
+if __name__ == "__main__":
+    main()
